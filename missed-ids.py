@@ -1,5 +1,5 @@
 import os
-from classes import Tweet
+from classes import Tweet, FileComponents
 from argparse import ArgumentParser
 
 # PARSE COMMAND LINE ARGUMENTS
@@ -11,19 +11,19 @@ parser.add_argument("-i", "--ids", dest="ids_filename",
 parser.add_argument("-o", "--output", dest="output_filename",
 					help="TXT filename to write out", metavar="OUTPUT", default=None)
 parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
-				help="How often to declare progress", metavar="CHECKPOINT", default=100000)
+				help="How often to declare progress", metavar="CHECKPOINT", default=100000, type=int)
 args = parser.parse_args()
 
 # TEST COMMAND LINE ARGUMENTS
-if args.tweets_filename is None or os.path.splitext(args.tweets_filename)[1] != ".jsonl":
+base_file = FileComponents(args.tweets_filename)
+if args.tweets_filename is None or base_file.extension != ".jsonl":
 	print "ERROR: no valid input JSONL file declared.\nAborting..."
 	quit()
 
 # INITIALISE REQUIRED VALUES
-base_filename = os.path.splitext(args.tweets_filename)[0]
 tweets_filename = args.tweets_filename
-ids_filename = base_filename + ".txt" if args.ids_file is None else args.ids_file
-output_filename = "missed-" + base_filename + ".txt" if args.output_file is None else args.output_file
+ids_filename = base_file.path + base_file.name + ".txt" if args.ids_filename is None else args.ids_filename
+output_filename = base_file.path + "missed-" + base_file.name + ".txt" if args.output_filename is None else args.output_filename
 checkpoint_value = args.checkpoint_index
 missed_count = 0
 
@@ -36,16 +36,16 @@ print "\n"
 # EXECUTE
 with open(tweets_filename, "r") as tweets_file, open(ids_filename, "r") as ids_file, open(output_filename, "w+") as output_file:
 
-	requested_tweet_ids = [int(line.rstrip()) for line in ids_file]
 	fetched_tweet_ids = [Tweet(line).id for line in tweets_file]
 
-	for index, id in enumerate(requested_tweet_ids):
+	for line_number, line in enumerate(ids_file):
+		id = int(line.rstrip())
 
 		if id not in fetched_tweet_ids:
 			missed_count += 1
 			output_file.write(line)
 
 		if line_number % checkpoint_value == 0:
-			print "CHECKPOINT (line " + str(index) + ")"
+			print "CHECKPOINT (line " + str(line_number) + ")"
 
 print "\nComplete: found " + str(missed_count) + " missed ids"

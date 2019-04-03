@@ -1,29 +1,29 @@
 import os
 from argparse import ArgumentParser
+from classes import FileComponents
 
 # PARSE COMMAND LINE ARGUMENTS
 parser = ArgumentParser()
 parser.add_argument("-i", "--input", dest="input_filename",
-					help="TXT filename to read in", metavar="INPUT")
+					help="TXT filename to read in", metavar="INPUT", default=None)
 parser.add_argument("-o", "--output", dest="output_destination",
 					help="Where to write out created TXT files", metavar="OUTPUT", default=None)
 parser.add_argument("-s", "--split", dest="split_index",
-			help="How often to start a new file", metavar="SPLIT", default=500000)
+			help="How often to start a new file", metavar="SPLIT", default=500000, type=int)
 parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
-		help="How often to declare progress", metavar="CHECKPOINT", default=100000)
+		help="How often to declare progress", metavar="CHECKPOINT", default=100000, type=int)
 args = parser.parse_args()
 
 # TEST COMMAND LINE ARGUMENTS
-if args.input_filename is None or os.path.splitext(args.input_filename)[1] != ".txt":
+base_file = FileComponents(args.input_filename)
+if args.input_filename is None or base_file.extension != ".txt":
 	print "ERROR: no valid input TXT file declared.\nAborting..."
 	quit()
 
 # INITIALISE REQUIRED VALUES
-base_filepath = os.path.basename(args.input_filename)
-base_filename = os.path.splitext(base_filepath)[0]
 input_filename = args.input_filename
-output_destination = os.path.dirname(args.input_filename) + "/" + base_filename + "/" if args.output_destination is None else args.output_destination
-output_filenames = output_destination + base_filename
+output_destination = base_file.path + base_file.name + "/" if args.output_destination is None else args.output_destination
+output_filenames = output_destination + base_file.name
 split_value = args.split_index
 checkpoint_value = args.checkpoint_index
 file_count = 0
