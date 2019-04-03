@@ -2,7 +2,7 @@
 
 * Write a `hydrate.py` that performs hydration but with useful status updates, unlike the command-line version which just hangs for hours while I continually `wc -l` the output file to check it's still working.
 * Write a `collate.py` that groups tweets by day and outputs new `.csv` containing total temperature and volume per some period _p_ (likely one day)
-* Write a `entropy.py` that calculates some estimation of Boltzmann's formula for entropy. This requires some measure of possible microstates, where requisite values for computation must be derived from the macrostate measures we have, such as analogous volume _v_ and temperature _t_ (which should enable some density and/or pressure estimates, for example as _v_ / _p_).
+* Write a `entropy.py` that calculates some estimation of Shannon entropy over time. This requires some measure of possible microstates, where requisite values for computation must be derived from the macrostate measures we have, such as analogous volume _v_ and temperature _t_ (which should enable some density and/or pressure estimates, for example as _v_ / _p_).
 
 # Files
 
