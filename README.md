@@ -1,18 +1,16 @@
-# Honours-Code
-
-## TODO
+# TODO
 
 * Write a `hydrate.py` that performs hydration but with useful status updates, unlike the command-line version which just hangs for hours while I continually `wc -l` the output file to check it's still working.
 * Write a `collate.py` that groups tweets by day and outputs new `.csv` containing total temperature and volume per some period _p_ (likely one day)
 * Write a `entropy.py` that calculates some estimation of Boltzmann's formula for entropy. This requires some measure of possible microstates, where requisite values for computation must be derived from the macrostate measures we have, such as analogous volume _v_ and temperature _t_ (which should enable some density and/or pressure estimates, for example as _v_ / _p_).
 
-## Files
+# Files
 
-### classes.py
+## classes.py
 
 A utility file of classes used in other scripts hereafter. The classes contained are as follows...
 
-#### `FileComponents`
+### `FileComponents`
 
 | Attribute | Description |
 |:---|:---|
@@ -23,7 +21,7 @@ A utility file of classes used in other scripts hereafter. The classes contained
 
 **e.g.** in `/some/path/to/an/imaginary.file`, the whole thing is the absolute path. `/some/path/to/an/` is the path, `imaginary` is the name and `file` is the extension.
 
-#### `Tweet`
+### `Tweet`
 
 | Attribute | Description |
 |:---|:---|
@@ -39,9 +37,9 @@ A utility file of classes used in other scripts hereafter. The classes contained
 | `quoted_id` | if `is_quote_tweet`: `int` representation of quoted Tweet identifier, else `None`|
 | `timestamp` | `string` representation of time Tweet was posted (in %Y-%m-%d %H:%M:%S format)|
 
-### missed-ids.py
+## missed-ids.py
 
-#### Inputs
+### Inputs
 | Flag | Description | Default |
 |:---|:---|:---|
 | `-t`/`--tweets` | the `.jsonl` file of hydrated Tweets (in JSON Lines representation) | None (**required value**) |
@@ -49,11 +47,11 @@ A utility file of classes used in other scripts hereafter. The classes contained
 | `-o`/`--output` | the `.txt` file to create with missed Tweet IDs | IDs file with missed- prefix on filename |
 | `-c`/`--checkpoint` | the number of IDs to check at a time before printing indication of progress | 100,000 |
 
-#### Outputs
+### Outputs
 
 A `.txt` file of IDs not successfully fetched from the original hydration request. This may be because the tweet was deleted, posted by a private user the authorising account is not permitted to view content from, or script error. This can be used to re-attempt hydration of remaining IDs, or just as an Appendix to ensure optimal experiment repeatability.
 
-#### Example usage
+### Example usage
 
 `$ python missed-ids.py --tweets test.jsonl --ids test.txt --checkpoint 10`
 
@@ -78,9 +76,9 @@ CHECKPOINT (line 90)
 Complete: found 39 missed ids
 ```
 
-### split.py
+## split.py
 
-#### Inputs
+### Inputs
 
 | Flag | Description | Default |
 |:---|:---|:---|
@@ -89,11 +87,11 @@ Complete: found 39 missed ids
 | `-s`/`--split` | the maximum number of IDs to put in each file | 500,000 |
 | `-c`/`--checkpoint` | the number of IDs to check at a time before printing indication of progress | 100,000 |
 
-#### Outputs
+### Outputs
 
 A new set of `.txt` files (in an optional new directory), in which the original file is broken into `split`-sized groups, for ease of hydrating _n_ million-line datasets.
 
-#### Example usage
+### Example usage
 
 `$ python split.py --input test.txt --split 50 --checkpoint 10`
 
@@ -118,7 +116,7 @@ CHECKPOINT (line 90)
 Complete: split into 2 files
 ```
 
-### tweets.py
+## tweets.py
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--input", dest="input_filename",
@@ -128,7 +126,7 @@ parser.add_argument("-o", "--output", dest="output_filename",
 parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
 			help="How often to declare progress", metavar="CHECKPOINT", default=100000, type=int)
 
-#### Inputs
+### Inputs
 
 | Flag | Description | Default |
 |:---|:---|:---|
@@ -136,13 +134,13 @@ parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
 | `-o`/`--output` | the `.csv` file to create with derived Tweet values | input file with output- prefix on filename |
 | `-c`/`--checkpoint` | the number of Tweet objects to process at a time before printing indication of progress | 100,000 |
 
-#### Outputs
+### Outputs
 
 a `.csv` file of the values from each initialised Tweet object, laid out as below.
 
 ![image of C S V open in spreadsheet program, demonstrating column names and values](output.png)
 
-#### Example usage
+### Example usage
 
 `$ python tweets.py --input test.jsonl --checkpoint 10`
 
