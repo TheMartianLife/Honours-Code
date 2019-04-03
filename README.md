@@ -118,14 +118,6 @@ Complete: split into 2 files
 
 ## tweets.py
 
-parser = ArgumentParser()
-parser.add_argument("-i", "--input", dest="input_filename",
-					help="JSONL filename to read in", metavar="INPUT", default=None)
-parser.add_argument("-o", "--output", dest="output_filename",
-					help="CSV filename to write out", metavar="OUTPUT", default=None)
-parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
-			help="How often to declare progress", metavar="CHECKPOINT", default=100000, type=int)
-
 ### Inputs
 
 | Flag | Description | Default |
@@ -136,7 +128,7 @@ parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
 
 ### Outputs
 
-a `.csv` file of the values from each initialised Tweet object, laid out as below.
+a `.csv` file of the values from each initialised Tweet object, laid out as follows...
 
 ![image of C S V open in spreadsheet program, demonstrating column names and values](output.png)
 
