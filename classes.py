@@ -35,73 +35,30 @@ class Tweet:
         self.quoted_id = None
 
         self.id = int(tweet_json["id_str"]) if "id_str" in tweet_json else None
+        self.likes = int(tweet_json["favorite_count"]) if "favorite_count" in tweet_json else None
         self.retweets = int(tweet_json["retweet_count"]) if "retweet_count" in tweet_json else None
         self.timestamp = self.process_datetime(tweet_json["created_at"])
 
         # RETWEET
         if self.is_retweet:
-            self.text = self.get_full_text(tweet_json["retweeted_status"])
-            self.likes = int(tweet_json["retweeted_status"]["favorite_count"]) if "favorite_count" in tweet_json["retweeted_status"] else None
             self.retweeted_id = int(tweet_json["retweeted_status"]["id_str"]) if "id_str" in tweet_json["retweeted_status"] else None
-            self.is_retweet = True
-
-        # NORMAL TWEET
-        else:
-            self.text = self.get_full_text(tweet_json)
-            self.likes = int(tweet_json["favorite_count"]) if "favorite_count" in tweet_json else None
+            retweet_likes = int(tweet_json["retweeted_status"]["favorite_count"]) if "favorite_count" in tweet_json["retweeted_status"] else None
+            self.likes = max(self.likes, retweet_likes)
 
         # QUOTE TWEET
         if self.is_quote_tweet:
-            self.text += "\n\nQUOTED TWEET: " + self.get_full_text(tweet_json["quoted_status"])
             self.quoted_id = int(tweet_json["quoted_status_id"]) if "quoted_status_id" in tweet_json else None
-
-        self.temperature = self.calculate_temperature()
-        self.volume = self.calculate_volume()
 
     #################################
     #        HELPER FUNCTIONS       #
     #################################
-    def get_full_text(self, tweet_json):
-        if "extended_tweet" in tweet_json and "full_text" in tweet_json["extended_tweet"]:
-            return tweet_json["extended_tweet"]["full_text"]
-        return tweet_json["full_text"] if "full_text" in tweet_json else None
-
     def process_datetime(self, date_string):
         time_tuple = parsedate_tz(date_string.strip())
         dt = datetime(*time_tuple[:6])
         return str(dt - timedelta(seconds=time_tuple[-1]))
 
     #################################
-    #      TEMPERATURE METRIC       #
-    #################################
-    def calculate_temperature(self):
-        # TODO: replace metric
-        if self.likes is None or self.retweets is None:
-            return None
-        return self.likes
-
-    #################################
-    #         VOLUME METRIC         #
-    #################################
-    def calculate_volume(self):
-        # TODO: replace metric
-        if self.retweets is None:
-            return 1
-        return self.retweets + 1
-
-
-    #################################
-    #     STRING REPRESENTATION     #
-    #################################
-    def __str__(self):
-        header_text = "TWEET (ID: " + str(self.id) + ")\ntimestamp: " + self.timestamp + "\n\n"
-        engagement_text = "\n\nlikes: " + str(self.likes) + " retweets: " + str(self.retweets) + "\n"
-        metrics_text = " temperature: " + str(self.temperature) + "volume: " + str(self.volume) + "\n"
-        return header_text + self.text + engagement_text + metrics_text
-
-
-    #################################
     #        CSV LINE VALUES        #
     #################################
     def values(self):
-        return [str(self.id), self.text.encode('utf-8'), str(self.likes), str(self.retweets), str(self.temperature), str(self.volume), str(self.is_retweet), str(self.retweeted_id), str(self.is_quote_tweet), str(self.quoted_id), self.timestamp]
+        return [str(self.id), str(self.likes), str(self.retweets), str(self.retweeted_id), str(self.quoted_id), self.timestamp]

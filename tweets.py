@@ -5,44 +5,51 @@ from argparse import ArgumentParser
 
 # PARSE COMMAND LINE ARGUMENTS
 parser = ArgumentParser()
-parser.add_argument("-i", "--input", dest="input_filename",
-					help="JSONL filename to read in", metavar="INPUT", default=None)
-parser.add_argument("-o", "--output", dest="output_filename",
-					help="CSV filename to write out", metavar="OUTPUT", default=None)
+parser.add_argument("input_filename", metavar="INPUT_FILE", type=str,
+					help="JSONL filename to read in", default=None)
 parser.add_argument("-c", "--checkpoint", dest="checkpoint_index",
-			help="How often to declare progress", metavar="CHECKPOINT", default=100000, type=int)
+        help="How often to declare progress", metavar="CHECKPOINT", default=50000, type=int)
 args = parser.parse_args()
 
 # TEST COMMAND LINE ARGUMENTS
+if args.input_filename is None:
+    print("ERROR: no input file declared.\nAborting...")
+    quit()
+
 base_file = FileComponents(args.input_filename)
-if args.input_filename is None or base_file.extension != ".jsonl":
-	print "ERROR: no valid input JSONL file declared.\nAborting..."
-	quit()
+
+if base_file.extension != ".jsonl":
+    print("ERROR: input file must be valid JSON file.\nAborting...")
+    quit()
 
 # INITIALISE REQUIRED VALUES
 input_filename = args.input_filename
-output_filename = base_file.path + "output-" + base_file.name + ".csv" if args.output_filename is None else args.output_filename
+output_filename = base_file.path + "output-" + base_file.name + ".csv"
 checkpoint_value = args.checkpoint_index
 tweet_count = 0
 
-print "\nExecuting: tweets.py"
-print "==> Parsing tweets from: " + input_filename
-print "==> Outputting values to: " + output_filename
-print "\n"
+checkpoint_value = 100000
 
-with open(input_filename, "r") as input_file, open(output_filename, "w+") as output_file:
+print("\nExecuting: tweets.py")
+print("==> Parsing tweets from: " + input_filename)
+print("==> Outputting values to: " + output_filename)
+print("\n")
 
-	csv_writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-	csv_writer.writerow(["id", "tweet", "likes", "retweets", "temperature", "volume", "is_retweet", "retweeted_id", "is_quote_tweet", "quoted_id", "timestamp"])
+with open(output_filename, "w+") as output_file:
+    csv_writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    csv_writer.writerow(["id", "likes", "retweets", "retweeted_id", "quoted_id", "timestamp"])
+    tweet_count = 0
 
-	for line_number,line in enumerate(input_file):
+    with open(input_filename, "r") as input_file:
 
-		tweet = Tweet(line)
-		csv_writer.writerow(tweet.values())
+        for line_number, line in enumerate(input_file):
 
-		if line_number % checkpoint_value == 0:
-			print "CHECKPOINT (line " + str(line_number) + ")"
+            tweet = Tweet(line)
+            csv_writer.writerow(tweet.values())
 
-		tweet_count = line_number
+            if line_number % checkpoint_value == 0:
+                print("CHECKPOINT (line " + str(line_number) + ")")
 
-print "\nComplete: processed " + str(tweet_count) + " tweets"
+            tweet_count = line_number + 1
+
+    print("\nComplete: processed " + str(tweet_count) + " tweets")

@@ -1,10 +1,29 @@
-# TODO
-
-* Write a `hydrate.py` that performs hydration but with useful status updates, unlike the command-line version which just hangs for hours while I continually `wc -l` the output file to check it's still working.
-* Write a `collate.py` that groups tweets by day and outputs new `.csv` containing total temperature and volume per some period _p_ (likely one day)
-* Write a `entropy.py` that calculates some estimation of Shannon entropy over time. This requires some measure of possible microstates, where requisite values for computation must be derived from the macrostate measures we have, such as analogous volume _v_ and temperature _t_ (which should enable some density and/or pressure estimates, for example as _v_ / _p_).
-
 # Files
+
+### Included:
+
+* **classes.py** defines classes used in other scripts
+* **hydrate.py** hydrates a `.txt` file of Tweet IDs into a new `.jsonl` file of full Tweet objects
+* **tweets.py** processes a `.jsonl` file of Tweet objects and outputs a new `.csv` file of computed values
+* **collate.py** processes a `.csv` file of Tweet values and outputs a new `.csv` file of summarised values per period _P_
+* **entropy.py** processes a `.csv` file of summarised Tweet values and outputs a new `.csv`  file of calculated Shannon Entropy of topic over time
+* **plotting.py** ...???
+
+### Not included:
+
+A file called **secrets.py** containing a declaration as follows...
+
+```
+from twarc import Twarc
+
+def initialised_twarc_object():
+    consumer_key = "<your Twitter app API consumer key>"
+    consumer_secret = "<your Twitter app API consumer secret>"
+    access_token = "<your Twitter app API access token>"
+    access_token_secret = "<your Twitter app API access token secret>"
+
+    return Twarc(consumer_key, consumer_secret, access_token, access_token_secret)
+```
 
 ## classes.py
 
@@ -37,84 +56,14 @@ A utility file of classes used in other scripts hereafter. The classes contained
 | `quoted_id` | if `is_quote_tweet`: `int` representation of quoted Tweet identifier, else `None`|
 | `timestamp` | `string` representation of time Tweet was posted (in %Y-%m-%d %H:%M:%S format)|
 
-## missed-ids.py
-
-### Inputs
-| Flag | Description | Default |
-|:---|:---|:---|
-| `-t`/`--tweets` | the `.jsonl` file of hydrated Tweets (in JSON Lines representation) | None (**required value**) |
-| `-i`/`--ids` | the `.txt` file of Tweet IDs the above file was hydrated from | Tweets file with .txt extension instead of .jsonl |
-| `-o`/`--output` | the `.txt` file to create with missed Tweet IDs | IDs file with missed- prefix on filename |
-| `-c`/`--checkpoint` | the number of IDs to check at a time before printing indication of progress | 100,000 |
-
-### Outputs
-
-A `.txt` file of IDs not successfully fetched from the original hydration request. This may be because the tweet was deleted, posted by a private user the authorising account is not permitted to view content from, or script error. This can be used to re-attempt hydration of remaining IDs, or just as an Appendix to ensure optimal experiment repeatability.
-
-### Example usage
-
-`$ python missed-ids.py --tweets test.jsonl --ids test.txt --checkpoint 10`
-
-```
-Executing: missed-ids.py
-==> Checking tweets from: test.jsonl
-==> Comparing tweet ids from: test.txt
-==> Outputting missed ids to: missed-test.txt
-
-
-CHECKPOINT (line 0)
-CHECKPOINT (line 10)
-CHECKPOINT (line 20)
-CHECKPOINT (line 30)
-CHECKPOINT (line 40)
-CHECKPOINT (line 50)
-CHECKPOINT (line 60)
-CHECKPOINT (line 70)
-CHECKPOINT (line 80)
-CHECKPOINT (line 90)
-
-Complete: found 39 missed ids
-```
-
-## split.py
+## hydrate.py
 
 ### Inputs
 
-| Flag | Description | Default |
-|:---|:---|:---|
-| `-i`/`--input` | the `.txt` file of Tweet IDs to split up | None (**required value**) |
-| `-o`/`--output` | the directory to output split files to (created if it doesn't exist) | `./`Input filename without extension`/` |
-| `-s`/`--split` | the maximum number of IDs to put in each file | 500,000 |
-| `-c`/`--checkpoint` | the number of IDs to check at a time before printing indication of progress | 100,000 |
-
 ### Outputs
-
-A new set of `.txt` files (in an optional new directory), in which the original file is broken into `split`-sized groups, for ease of hydrating _n_ million-line datasets.
 
 ### Example usage
 
-`$ python split.py --input test.txt --split 50 --checkpoint 10`
-
-```
-Executing: missed-ids.py
-==> Getting ids from: test.txt
-==> Splitting into groups of: 50
-==> Outputting ids to: test/test1.txt and onward
-
-
-CHECKPOINT (line 0)
-CHECKPOINT (line 10)
-CHECKPOINT (line 20)
-CHECKPOINT (line 30)
-CHECKPOINT (line 40)
-CHECKPOINT (line 50)
-CHECKPOINT (line 60)
-CHECKPOINT (line 70)
-CHECKPOINT (line 80)
-CHECKPOINT (line 90)
-
-Complete: split into 2 files
-```
 
 ## tweets.py
 
@@ -134,21 +83,32 @@ a `.csv` file of the values from each initialised Tweet object, laid out as foll
 
 ### Example usage
 
-`$ python tweets.py --input test.jsonl --checkpoint 10`
+`$ python tweets.py test.jsonl`
 
 ```
-Executing: tweets.py
-==> Parsing tweets from: test.jsonl
-==> Outputting values to: output-test.csv
 
-
-CHECKPOINT (line 0)
-CHECKPOINT (line 10)
-CHECKPOINT (line 20)
-CHECKPOINT (line 30)
-CHECKPOINT (line 40)
-CHECKPOINT (line 50)
-CHECKPOINT (line 60)
-
-Complete: processed 60 tweets
 ```
+
+## collate.py
+
+### Inputs
+
+### Outputs
+
+### Example usage
+
+## entropy.py
+
+### Inputs
+
+### Outputs
+
+### Example usage
+
+## plotting.py
+
+### Inputs
+
+### Outputs
+
+### Example usage
